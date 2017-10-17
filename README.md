@@ -4,7 +4,7 @@
  
 
 
-First you need to input your credentials of Twitter API.
+First you need to input your credentials of Twitter API.<br>
 So, create `Credentials` text file on local repo folder. It should have four lines:
 
 ```
@@ -34,6 +34,8 @@ then add to the template:
 ```
 
 This is how you use it on XMobar. For other status bars or uses, adapt it somehow.
+
+`NewsChannels` file contais the channel list, tweak it.
 
 If you run `openInfo.py` anytime, a browser window will pop and open last shown tweet's link, if it contained any. This should not work properly.
 
