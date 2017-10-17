@@ -1,0 +1,10 @@
+#!/bin/bash
+SCROLL=~/.scroll
+CONTENT=$(cat $SCROLL)
+if [[ ! -z ${CONTENT} ]];then
+echo $CONTENT
+echo `echo $CONTENT|cut -c${1}-` > $SCROLL
+fi
+if [[ ${#CONTENT} < 40 ]];then
+newsfilter
+fi
