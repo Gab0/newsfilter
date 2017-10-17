@@ -4,7 +4,8 @@
  
 
 
-First you need to input your credentials of Twitter API. So, create `Credentials` text file on local repo folder. It should have four lines:
+First you need to input your credentials of Twitter API.
+So, create `Credentials` text file on local repo folder. It should have four lines:
 
 ```
 { consumer key }
