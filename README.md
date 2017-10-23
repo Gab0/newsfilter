@@ -15,29 +15,32 @@ So, create `Credentials` text file on local repo folder. It should have four lin
 
 ```
 
-Compile scroller.cpp; resulting executable must be on same folder as newsfilter.py as long as you don't want to edit the cpp file (easy to find the path it searches).
+Compile scroller.cpp with `-pthread` flag; 
 
+`$g++ scroller.cpp -o scroller -pthread`
 
+Scroller 
 Last step of the setup:
 
-On add StdinReader to .xmobarrc: (Maybe it's already even there)
+
 ```
 append to commands:
 
-   , Run StdinReader
+   , Run CommandReader "/full/path/to/scroller 'python /full/path/to/newsfilter.py'" 
 
 -- add that  to the template:
 
-%StdinReader%
+%CommandReader%
+
 ```
 
-This is how you use it on XMobar. For other status bars, just enable their stdin reader, as scroller will send text to them thru pipe/stdin.
+
+This is how you use it on XMobar. Scroller takes the command to run `newsfilter.py` as it's unique argument, so that's it.
 
 `NewsChannels` file contais the channel list, tweak it.
 
-If you run `openInfo.py` anytime, a browser window will pop and open last shown tweet's link, if it contained any. This should not work properly.
+If you run `openInfo.py` anytime, a browser window will pop and open last shown tweet's link, if it contained any. This is not working atm xD
 
-Just run `scroller xmobar`. The bar process name shoud go as the first argument.
 
 Newsfilter is a highly experimental piece of software is and I'm working on it. Ideas are appreciated.
 

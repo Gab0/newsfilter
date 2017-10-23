@@ -13,13 +13,52 @@
 #include <iterator>
 #include <algorithm>
 #include <future>
-#include <pthread.h>
 #define bad(x) (aStr[x] < 0)
 
 std::string GetStdoutFromCommand(std::string cmd);
-int getpid(char *PID, char *procname);
+
 std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength);
 
+FILE *getStdinAddress(std::string targetname);
+
+
+FILE *getStdinAddress(std::string targetname)
+{
+
+    char output[64000];
+    FILE *PS=popen("ps x", "r");
+
+    fread(output, 1, 64000, PS);
+
+    char *Read =strtok(output, "\n");
+    char *PID= NULL;
+    while (Read!=NULL)
+      {
+        if ( strstr(Read, targetname.c_str())!= NULL )
+          {
+
+            Read = strtok(Read, " ");
+            memcpy(PID, Read, strlen(Read));
+            //printf("FOUND %s\n", PID);
+
+            return 0;
+          }
+        else
+          {
+            //printf("%s\n",Read);
+            Read=strtok(NULL, "\n");
+          }
+
+      }
+    //printf("PID not found;\n");
+    std::string path("/proc/");
+    path += PID;
+    path += "/fd/0";
+
+    FILE *targetstdin = fopen(path.c_str(), "a");
+    return targetstdin;
+
+}
 
 int main(int argc, char **argv)
 {
@@ -30,8 +69,7 @@ int main(int argc, char **argv)
   char *StatusBarPID = (char *)malloc(100 * sizeof(char));
 
   char *outpath = (char *)malloc(100 * sizeof(char));
-  printf("Writing to %s.\n", outpath);
-
+  //printf("Writing to %s.\n", outpath);
 
 
   char *outputprocname = (char *)malloc(16 * sizeof(char));
@@ -40,19 +78,19 @@ int main(int argc, char **argv)
   else
     memcpy(outputprocname, "xmobar", 7);
 
-  printf("Getting PID of %s\n", outputprocname);
+  //printf("Getting PID of %s\n", outputprocname);
 
-  if (getpid(StatusBarPID, outputprocname))
-    return 1;
+  //if (getpid(StatusBarPID, outputprocname))
+  //  return 1;
 
-  printf("Endpoint PID %s\n", StatusBarPID);
-  asprintf(&outpath, "/proc/%s/fd/0", StatusBarPID);
+  //printf("Endpoint PID %s\n", StatusBarPID);
+  //asprintf(&outpath, "/proc/%s/fd/0", StatusBarPID);
 
-  FILE *output = fopen( outpath, "a" );
+  //FILE *output = fopen( outpath, "a" );
 
   int commresult =0;
   int horizontalspan = 116;
-  printf("Writing to %s\n\n", outpath);
+  //printf("Writing to %s\n\n", outpath);
   int waitingData=0;
 
   std::string Text;
@@ -61,12 +99,12 @@ int main(int argc, char **argv)
   std::future<std::string> ID;
   for (;;)
     {
-      printf("text length = %i\n", Text.length());
+      //printf("text length = %i\n", Text.length());
       if (Text.length() < horizontalspan)
         {
           if (!waitingData)
             {
-              ID = std::async(GetStdoutFromCommand, "python newsfilter.py");
+              ID = std::async(GetStdoutFromCommand, argv[1]);
               waitingData++;
             }
           if (waitingData > 9)
@@ -86,14 +124,14 @@ int main(int argc, char **argv)
       OutputText += "\n";
 
 
-      std::fprintf(output, "%s", OutputText.c_str());
+      //std::fprintf(output, "%s", OutputText.c_str());
       std::cout << OutputText;
 
       if (commresult<0)
         return 1;
-      fflush(output);
+      fflush(stdout);
 
-      printf("Success %i\n\n", commresult);
+      //printf("Success %i\n\n", commresult);
         }
       usleep((int)(SLEEPTIME * 1000000));
 
@@ -112,10 +150,12 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
 
 
   // START-POINT-TRIM;
+  /*
   printf( "Before Start %i\n", aStr[SubStrStart-1]  );
   printf( "On Start %i\n", aStr[SubStrStart] );
   printf( "After Start %i\n", aStr[SubStrStart+1] );
   printf( "Two After Start %i\n\n", aStr[SubStrStart+2 ]);
+  */
   if bad(SubStrStart-1)
           {
             while bad(SubStrStart+startcut)
@@ -125,9 +165,11 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
           }
 
   // END-POINT-TRIM;
+  /*
   printf( "Before End %i\n", aStr[SubStrEnd-1]  );
   printf( "On End  %i\n", aStr[SubStrEnd]);
   printf( "After End %i\n", aStr[SubStrEnd+1]);
+  */
   if bad(SubStrEnd+1)
           {
 
@@ -136,43 +178,10 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
 
             SubStrLength-=endcut;
           }
-  printf("%i;%i\n", startcut,endcut);
+  //printf("%i;%i\n", startcut,endcut);
   std:: string csSubstring= originalString.substr(SubStrStart, SubStrLength);
   csSubstring.replace(0,startcut,startcut, ' ');
   return csSubstring;
-}
-
-int getpid(char *PID, char *procname)
-{
-  char output[64000];
-  FILE *PS=popen("ps x", "r");
-
-  fread(output, 1, 64000, PS);
-
-
-  char *Read =strtok(output, "\n");
-
-  while (Read!=NULL)
-    {
-    if ( strstr(Read, procname)!= NULL )
-      {
-
-        Read = strtok(Read, " ");
-        memcpy(PID, Read, strlen(Read));
-        printf("FOUND %s\n", PID);
-
-        return 0;
-      }
-    else
-      {
-        //printf("%s\n",Read);
-        Read=strtok(NULL, "\n");
-      }
-
-    }
-  printf("PID not found;\n");
-
-  return 1;
 }
 
 
