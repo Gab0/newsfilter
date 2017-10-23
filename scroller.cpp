@@ -71,15 +71,15 @@ int main(int argc, char **argv)
   std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
   for (;;)
     {
-      if (initPoint < Text.length())
-    {
-      //while(message[initPoint] > 127)//because of bugz;
-      //  initPoint++;
-      printf("loop %i. TL=%i\n", initPoint, Text.length());
+      printf("text length = %i\n", Text.length());
+      if (Text.length() < horizontalspan)
+        {
+          Text+=GetStdoutFromCommand("python newsfilter.py");
+          
+        }
       effectivespan=min(horizontalspan, strlen(message)-initPoint-1) ;
 
-      //strncpy( submessage, &message[initPoint+1], effectivespan);
-      //OutputText = Text.substr(initPoint, effectivespan);
+      Text = Text.substr(STEP, Text.length());
       OutputText = utf8substr(Text, initPoint, effectivespan);
       OutputText += "\n";
 
@@ -95,16 +95,7 @@ int main(int argc, char **argv)
 
       usleep((int)(SLEEPTIME * 1000000));
       initPoint+=STEP;
-    }
-    else
-      {
-        //renewMessage(message);
-        Text=GetStdoutFromCommand("python newsfilter.py");
-
-
-        //std::printf("NN%s\n\n", Text_.c_str());
-        initPoint=0;
-      }
+    
     }
   return 0;
 }
