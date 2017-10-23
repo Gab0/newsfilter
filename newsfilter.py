@@ -96,8 +96,8 @@ if __name__ == '__main__':
     M=(' ').join(getMessage(C['NewsChannels']))
 
     # append news data to scroll file;
-    Q=open(getenv('HOME')+'/.scroll', 'w+')
-    Q.write(M)
+    #Q=open(getenv('HOME')+'/.scroll', 'w+')
+    #Q.write(M)
     print(M.strip('\n'))
-    #print("àààààààà")
+    #print("ààaàààààà")
 

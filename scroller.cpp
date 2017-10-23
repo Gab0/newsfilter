@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <locale.h>
 
-#include <codecvt>
 
 
 #include <iostream>
@@ -12,24 +11,21 @@
 #include <fstream>
 #include <string>
 #include <iterator>
+#include <algorithm>
+#include <future>
+#include <pthread.h>
 #define bad(x) (aStr[x] < 0)
+
 std::string GetStdoutFromCommand(std::string cmd);
 int getpid(char *PID, char *procname);
 std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength);
-
-#define min(a,b)                                \
-  ({ __typeof__ (a) _a = (a);                   \
-    __typeof__ (b) _b = (b);                    \
-    _a < _b ? _a : _b; })
 
 
 int main(int argc, char **argv)
 {
 
-  setlocale(LC_ALL, "");
   int STEP= 1;
   float SLEEPTIME = 0.5;
-  //FILE *origin = fopen ("~/.scroll", "r");
 
   char *StatusBarPID = (char *)malloc(100 * sizeof(char));
 
@@ -56,23 +52,35 @@ int main(int argc, char **argv)
 
   int commresult =0;
   int horizontalspan = 116;
-  printf("Writing to %s\n", outpath);
-
-
+  printf("Writing to %s\n\n", outpath);
+  int waitingData=0;
 
   std::string Text;
   std::string OutputText;
-  std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
+  std::string IncomingData;
+  std::future<std::string> ID;
   for (;;)
     {
       printf("text length = %i\n", Text.length());
       if (Text.length() < horizontalspan)
         {
-          Text+=GetStdoutFromCommand("python newsfilter.py");
-          
+          if (!waitingData)
+            {
+              ID = std::async(GetStdoutFromCommand, "python newsfilter.py");
+              waitingData++;
+            }
+          if (waitingData > 9)
+            {
+              IncomingData += ID.get();
+              Text.insert(Text.length(), IncomingData, 0, std::string::npos);
+              waitingData=0;
+            }
+          else if (waitingData)
+            waitingData++;
         }
+      if (Text.length())
 
-
+        {
       Text = Text.substr(STEP, Text.length());
       OutputText = utf8substr(Text, 1, horizontalspan);
       OutputText += "\n";
@@ -86,9 +94,9 @@ int main(int argc, char **argv)
       fflush(output);
 
       printf("Success %i\n\n", commresult);
-
+        }
       usleep((int)(SLEEPTIME * 1000000));
-    
+
     }
   return 0;
 }
@@ -113,6 +121,7 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
             while bad(SubStrStart+startcut)
                        startcut+=1;
 
+
           }
 
   // END-POINT-TRIM;
@@ -124,7 +133,6 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
 
             while bad(SubStrEnd-endcut)
                        endcut--;
-
 
             SubStrLength-=endcut;
           }
@@ -182,5 +190,6 @@ std::string GetStdoutFromCommand(std::string cmd)
       if (fgets(buffer, max_buffer, stream) != NULL) data.append(buffer);
     pclose(stream);
   }
+  data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
   return data;
 }
