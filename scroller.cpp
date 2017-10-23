@@ -12,7 +12,7 @@
 #include <fstream>
 #include <string>
 #include <iterator>
-
+#define bad(x) (aStr[x] < 0)
 std::string GetStdoutFromCommand(std::string cmd);
 void renewMessage(char *alloc);
 int getpid(char *PID, char *procname);
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     {
       //while(message[initPoint] > 127)//because of bugz;
       //  initPoint++;
-      printf("loop %i. TL=%i", initPoint, Text.length());
+      printf("loop %i. TL=%i\n", initPoint, Text.length());
       effectivespan=min(horizontalspan, strlen(message)-initPoint-1) ;
 
       //strncpy( submessage, &message[initPoint+1], effectivespan);
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
         return 1;
       fflush(output);
 
-      printf("Success %i\n", commresult);
+      printf("Success %i\n\n", commresult);
 
       usleep((int)(SLEEPTIME * 1000000));
       initPoint+=STEP;
@@ -109,39 +109,44 @@ int main(int argc, char **argv)
   return 0;
 }
 
-#define BB(x) (aStr[x] & 0xc0) != 0x80
-
 std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength)
 {
   int len = 0, byteIndex = 0;
   const char* aStr = originalString.c_str();
   size_t origSize = originalString.size();
 
-  int SubStrEnd = SubStrStart + SubStrLength;
-  int cut=0;
-  // START-POINT-TRIM;
+  int SubStrEnd = SubStrStart + SubStrLength-1;
+  int endcut=0, startcut=0;
 
-  printf( "B.S. %i\n", aStr[SubStrStart-1]  );
-  if ( aStr[SubStrStart-1] < 0 || aStr[SubStrStart-1] == 195 )
-    {
-      //std::cout << "hheuheu\n";
-      SubStrStart++;
-    }
+
+  // START-POINT-TRIM;
+  printf( "Before Start %i\n", aStr[SubStrStart-1]  );
+  printf( "On Start %i\n", aStr[SubStrStart] );
+  printf( "After Start %i\n", aStr[SubStrStart+1] );
+  printf( "Two After Start %i\n\n", aStr[SubStrStart+2 ]);
+  if bad(SubStrStart-1)
+          {
+            while bad(SubStrStart+startcut)
+                       startcut+=1;
+
+          }
+
   // END-POINT-TRIM;
   printf( "Before End %i\n", aStr[SubStrEnd-1]  );
   printf( "On End  %i\n", aStr[SubStrEnd]);
-  if (aStr[SubStrEnd] < 0)
-    {
-    if (aStr[SubStrEnd-1] > 0)
-      cut=1;
+  printf( "After End %i\n", aStr[SubStrEnd+1]);
+  if bad(SubStrEnd+1)
+          {
 
-    else
-      cut=2;
+            while bad(SubStrEnd-endcut)
+                       endcut--;
 
-      printf(";%i\n", cut);
-      SubStrLength-=cut;
-  }
+
+            SubStrLength-=endcut;
+          }
+  printf("%i;%i\n", startcut,endcut);
   std:: string csSubstring= originalString.substr(SubStrStart, SubStrLength);
+  csSubstring.replace(0,startcut,startcut, ' ');
   return csSubstring;
 }
 
