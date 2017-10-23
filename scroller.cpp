@@ -14,7 +14,6 @@
 #include <iterator>
 #define bad(x) (aStr[x] < 0)
 std::string GetStdoutFromCommand(std::string cmd);
-void renewMessage(char *alloc);
 int getpid(char *PID, char *procname);
 std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength);
 
@@ -37,10 +36,8 @@ int main(int argc, char **argv)
   char *outpath = (char *)malloc(100 * sizeof(char));
   printf("Writing to %s.\n", outpath);
 
-  char message[6000];
-  //char submessage[150];
 
-  char *submessage = (char *)malloc(150 * sizeof(char));
+
   char *outputprocname = (char *)malloc(16 * sizeof(char));
   if (argc > 1)
     outputprocname = argv[1];
@@ -56,15 +53,12 @@ int main(int argc, char **argv)
   asprintf(&outpath, "/proc/%s/fd/0", StatusBarPID);
 
   FILE *output = fopen( outpath, "a" );
-  //std::string P(outpath);
-  //std::ofstream Output;
-  //Output.open(P);
 
   int commresult =0;
   int horizontalspan = 116;
   printf("Writing to %s\n", outpath);
-  int effectivespan = 0;
-  int initPoint=0;
+
+
 
   std::string Text;
   std::string OutputText;
@@ -77,10 +71,10 @@ int main(int argc, char **argv)
           Text+=GetStdoutFromCommand("python newsfilter.py");
           
         }
-      effectivespan=min(horizontalspan, strlen(message)-initPoint-1) ;
+
 
       Text = Text.substr(STEP, Text.length());
-      OutputText = utf8substr(Text, initPoint, effectivespan);
+      OutputText = utf8substr(Text, 1, horizontalspan);
       OutputText += "\n";
 
 
@@ -94,7 +88,6 @@ int main(int argc, char **argv)
       printf("Success %i\n\n", commresult);
 
       usleep((int)(SLEEPTIME * 1000000));
-      initPoint+=STEP;
     
     }
   return 0;
@@ -139,28 +132,6 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
   std:: string csSubstring= originalString.substr(SubStrStart, SubStrLength);
   csSubstring.replace(0,startcut,startcut, ' ');
   return csSubstring;
-}
-
-
-void renewMessage(char *alloc)
-{
-  const char *command="python newsfilter.py";
-  FILE *run = popen(command, "r");
-  int c=0;
-  int X =0;
-  int n=0;
-  printf("Gathering message info.\n");
-  char *str = NULL;
-  char buf[4096];
-  size_t len = 0;
-  fread(alloc, 1, 4000, run);
-  alloc[4001]=0;
-  printf("%s\n", alloc);
-  //std::string Text(alloc);
-
-
-
-  printf("Message of lenght %i loaded succesfully. \n", strlen(alloc));
 }
 
 int getpid(char *PID, char *procname)
