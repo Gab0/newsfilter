@@ -55,7 +55,7 @@ def parseTweet(Tweet):
     if S.endswith(':'):
         S=S[:-1]
     if LINK:
-        S += " >"
+        S += "ø"
         LINK = {S:LINK}
     else:
         LINK = {}
@@ -93,10 +93,11 @@ if __name__ == '__main__':
     api = twitterLogin(C['Credentials'])
 
     # fetch and concatenate messages;
-    M=(' '*5).join(getMessage(C['NewsChannels']))
+    M=(' ').join(getMessage(C['NewsChannels']))
 
     # append news data to scroll file;
     Q=open(getenv('HOME')+'/.scroll', 'w+')
     Q.write(M)
-
+    print(M.strip('\n'))
+    #print("àààààààà")
 

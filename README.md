@@ -4,7 +4,7 @@
  
 
 
-First you need to input your credentials of Twitter API.<br>
+First you need to input your credentials of Twitter API. Anyone with a Twitter account can get them, google it.<br>
 So, create `Credentials` text file on local repo folder. It should have four lines:
 
 ```
@@ -15,29 +15,29 @@ So, create `Credentials` text file on local repo folder. It should have four lin
 
 ```
 
-Then add a symlink to newsfiltershow to your PATH. Its an bash script that reads and deletes the first chars of the previously saved message (YES, thats how it works xD)
-That bash script keeps cropping the message file (standard location is `~/.scroll`) until it's empty. Then it calls newsfilter.py to fill it again with fresh news. So 
-you should also put a symlink to newsfilter.py on your path as `newsfilter`.
+Compile scroller.cpp; resulting executable must be on same folder as newsfilter.py as long as you don't want to edit the cpp file (easy to find the path it searches).
+
 
 Last step of the setup:
 
-On .xmobarrc:
+On add StdinReader to .xmobarrc: (Maybe it's already even there)
 ```
 append to commands:
 
-   , Run Com "newsfiltershow" [] "newsfilter" 3
+   , Run StdinReader
 
+-- add that  to the template:
 
-then add to the template:
-
-%newsfilter%
+%StdinReader%
 ```
 
-This is how you use it on XMobar. For other status bars or uses, adapt it somehow.
+This is how you use it on XMobar. For other status bars, just enable their stdin reader, as scroller will send text to them thru pipe/stdin.
 
 `NewsChannels` file contais the channel list, tweak it.
 
 If you run `openInfo.py` anytime, a browser window will pop and open last shown tweet's link, if it contained any. This should not work properly.
+
+Just run `scroller xmobar`. The bar process name shoud go as the first argument.
 
 Newsfilter is a highly experimental piece of software is and I'm working on it. Ideas are appreciated.
 
