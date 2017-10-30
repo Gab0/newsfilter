@@ -45,3 +45,8 @@ If you run `openInfo.py` anytime, a browser window will pop and open last shown 
 Newsfilter is a highly experimental piece of software is and I'm working on it. Ideas are appreciated.
 
 Good luck on enjoying this :x
+
+Todo:
+
+newsfilter.py gathers tweets from Twitter and proccess them into a big string, and prints it for scroller to read.
+Working on scripts that gets message from other sources.

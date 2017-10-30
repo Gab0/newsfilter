@@ -56,11 +56,9 @@ def parseTweet(Tweet):
         S=S[:-1]
     if LINK:
         S += "ø"
-        LINK = {S:LINK}
-    else:
-        LINK = {}
+    DATA = (S,LINK)
 
-    return S, LINK
+    return DATA
 
 def getMessage(NewsOrigin, N=7):
 
@@ -73,15 +71,10 @@ def getMessage(NewsOrigin, N=7):
     statuses = [ x.text for x in statuses ]
 
     Status=[]
-    LinkData = {}
+
     for k in range(N):
-        message, link = parseTweet(choice(statuses))
+        message = parseTweet(choice(statuses))
         Status.append(message)
-        LinkData.update(link)
-
-
-
-    writeLink(LinkData)
 
     return Status
 
@@ -93,11 +86,21 @@ if __name__ == '__main__':
     api = twitterLogin(C['Credentials'])
 
     # fetch and concatenate messages;
-    M=(' ').join(getMessage(C['NewsChannels']))
+    M = getMessage(C['NewsChannels'])
+    messagetext=''
+    linktext=''
+    for S in M:
+        messagetext+=S[0] + ' '
+        linktext+='%i;%s=' % (len(messagetext), S[1])
+
+
 
     # append news data to scroll file;
     #Q=open(getenv('HOME')+'/.scroll', 'w+')
     #Q.write(M)
-    print(M.strip('\n'))
+    print(messagetext.strip('\n'))
+    print('###')
+    print(linktext.strip('\n'))
+
     #print("ààaàààààà")
 

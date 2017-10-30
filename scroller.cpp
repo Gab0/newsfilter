@@ -4,23 +4,46 @@
 #include <unistd.h>
 #include <locale.h>
 
-
-
 #include <iostream>
 #include <locale>
 #include <fstream>
 #include <string>
-#include <iterator>
 #include <algorithm>
 #include <future>
+#include <sstream>
+#include <vector>
+#include <iterator>
+
 #define bad(x) (aStr[x] < 0)
 
 std::string GetStdoutFromCommand(std::string cmd);
 
 std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength);
 
-FILE *getStdinAddress(std::string targetname);
+std::string getHyperlink(std::vector<std::string> hyperlinks, int index);
 
+FILE *getStdinAddress(std::string targetname);
+std::vector<std::string> split(const std::string &s, char delim);
+
+template<typename Out> void Split(const std::string &s, char delim, Out result);
+
+template<typename Out>
+void Split(const std::string &s, char delim, Out result)
+{
+  std::stringstream ss(s);
+  std::string item;
+  while (std::getline(ss, item, delim))
+    {
+    *(result++) = item;
+  }
+}
+
+std::vector<std::string> split(const std::string &s, char delim)
+{
+  std::vector<std::string> elems;
+  Split(s, delim, std::back_inserter(elems));
+  return elems;
+}
 
 FILE *getStdinAddress(std::string targetname)
 {
@@ -70,13 +93,11 @@ int main(int argc, char **argv)
 
   char *outpath = (char *)malloc(100 * sizeof(char));
   //printf("Writing to %s.\n", outpath);
-
-
-  char *outputprocname = (char *)malloc(16 * sizeof(char));
-  if (argc > 1)
-    outputprocname = argv[1];
-  else
-    memcpy(outputprocname, "xmobar", 7);
+  if (argc == 1)
+    {
+      std::cout << "Message appendage script not specified;; abort.\n";
+      exit(1);
+    }
 
   //printf("Getting PID of %s\n", outputprocname);
 
@@ -97,6 +118,7 @@ int main(int argc, char **argv)
   std::string OutputText;
   std::string IncomingData;
   std::future<std::string> ID;
+  int Division=0;
   for (;;)
     {
       //printf("text length = %i\n", Text.length());
@@ -106,11 +128,20 @@ int main(int argc, char **argv)
             {
               ID = std::async(GetStdoutFromCommand, argv[1]);
               waitingData++;
+
             }
-          if (waitingData > 9)
+          if (waitingData > 8)
             {
-              IncomingData += ID.get();
-              Text.insert(Text.length(), IncomingData, 0, std::string::npos);
+              printf("iiih\n");
+              ID.wait();
+              IncomingData = ID.get();
+              std::cout << IncomingData;
+              Division = IncomingData.find("###");
+              std::cout << Division;
+
+              Text.insert(Text.length(), IncomingData.substr(2, Division), 0, std::string::npos);
+
+              std::vector<std::string> hyperlinks = split(IncomingData.substr(Division, -1), '=');
               waitingData=0;
             }
           else if (waitingData)
@@ -139,6 +170,24 @@ int main(int argc, char **argv)
   return 0;
 }
 
+std::string getHyperlink(std::vector<std::string> hyperlinks, int index)
+{
+  std::string matchlink;
+  for (int W;W<hyperlinks.size();W++)
+    {
+      std::vector<std::string> Link = split(hyperlinks[W], ';');
+      if (std::stoi(Link[0]) > index)
+        {
+          return matchlink;
+
+        }
+      matchlink = Link[1];
+
+    }
+
+  return matchlink;
+
+}
 std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength)
 {
   int len = 0, byteIndex = 0;
@@ -160,8 +209,6 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
           {
             while bad(SubStrStart+startcut)
                        startcut+=1;
-
-
           }
 
   // END-POINT-TRIM;
@@ -172,7 +219,6 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
   */
   if bad(SubStrEnd+1)
           {
-
             while bad(SubStrEnd-endcut)
                        endcut--;
 
@@ -194,11 +240,12 @@ std::string GetStdoutFromCommand(std::string cmd)
   cmd.append(" 2>&1");
 
   stream = popen(cmd.c_str(), "r");
-  if (stream) {
-    while (!feof(stream))
-      if (fgets(buffer, max_buffer, stream) != NULL) data.append(buffer);
-    pclose(stream);
-  }
+  if (stream)
+    {
+      while (!feof(stream))
+        if (fgets(buffer, max_buffer, stream) != NULL) data.append(buffer);
+      pclose(stream);
+    }
   data.erase(std::remove(data.begin(), data.end(), '\n'), data.end());
   return data;
 }
