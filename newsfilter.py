@@ -22,7 +22,7 @@ def loadCredentials():
             print("%s file not found!" % F)
             exit()
         D = open(F).read().split('\n')
-        Data[F] = [x for x in D if x]
+        Data[F] = [ x for x in D if x and not x.startswith('#') ]
 
     return Data
 
@@ -34,7 +34,6 @@ def twitterLogin(Credentials):
                       access_token_secret=Credentials[3],
                       sleep_on_rate_limit=True)
     return api
-
 
 def parseTweet(Tweet):
     S = Tweet.split(' ')
@@ -86,11 +85,11 @@ if __name__ == '__main__':
     api = twitterLogin(C['Credentials'])
 
     # fetch and concatenate messages;
-    M = getMessage(C['NewsChannels'])
+    M = getMessage(C['NewsChannels'], N=70)
     messagetext=''
     linktext=''
     for S in M:
-        messagetext+=S[0] + ' '
+        messagetext+=S[0] + ' ' * 7
         linktext+='%i;%s=' % (len(messagetext), S[1])
 
 
@@ -99,8 +98,8 @@ if __name__ == '__main__':
     #Q=open(getenv('HOME')+'/.scroll', 'w+')
     #Q.write(M)
     print(messagetext.strip('\n'))
-    print('###')
-    print(linktext.strip('\n'))
-
+    #print('###')
+    #print(linktext.strip('\n'))
+    open('LINK_INFO', 'w').write(linktext)
     #print("ààaàààààà")
 

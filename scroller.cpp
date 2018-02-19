@@ -1,31 +1,4 @@
-#include <stdio.h>
-#include <cstdlib>
-#include <string.h>
-#include <unistd.h>
-#include <locale.h>
-
-#include <iostream>
-#include <locale>
-#include <fstream>
-#include <string>
-#include <algorithm>
-#include <future>
-#include <sstream>
-#include <vector>
-#include <iterator>
-
-#define bad(x) (aStr[x] < 0)
-
-std::string GetStdoutFromCommand(std::string cmd);
-
-std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength);
-
-std::string getHyperlink(std::vector<std::string> hyperlinks, int index);
-
-FILE *getStdinAddress(std::string targetname);
-std::vector<std::string> split(const std::string &s, char delim);
-
-template<typename Out> void Split(const std::string &s, char delim, Out result);
+#include "scroller.h"
 
 template<typename Out>
 void Split(const std::string &s, char delim, Out result)
@@ -114,11 +87,15 @@ int main(int argc, char **argv)
   //printf("Writing to %s\n\n", outpath);
   int waitingData=0;
 
+  int textPosition=0;
+  int textResetAt=0;
+
+  int LEN=0;
   std::string Text;
   std::string OutputText;
   std::string IncomingData;
   std::future<std::string> ID;
-  int Division=0;
+
   for (;;)
     {
       //printf("text length = %i\n", Text.length());
@@ -130,33 +107,34 @@ int main(int argc, char **argv)
               waitingData++;
 
             }
-          if (waitingData > 8)
+          if (waitingData > 12)
             {
-              printf("iiih\n");
               ID.wait();
               IncomingData = ID.get();
-              std::cout << IncomingData;
-              Division = IncomingData.find("###");
-              std::cout << Division;
 
-              Text.insert(Text.length(), IncomingData.substr(2, Division), 0, std::string::npos);
+              Text.insert(Text.length(), IncomingData);//.substr(2, Division), 0, std::string::npos);
 
-              std::vector<std::string> hyperlinks = split(IncomingData.substr(Division, -1), '=');
               waitingData=0;
             }
           else if (waitingData)
             waitingData++;
         }
       if (Text.length())
-
         {
-      Text = Text.substr(STEP, Text.length());
-      OutputText = utf8substr(Text, 1, horizontalspan);
-      OutputText += "\n";
+          LEN = Text.length();
+          Text = Text.substr(STEP,LEN);
+          textPosition += STEP;
 
+          OutputText = utf8substr(Text, 1, std::min(horizontalspan, LEN ));
+          OutputText += "\n";
 
       //std::fprintf(output, "%s", OutputText.c_str());
       std::cout << OutputText;
+      if (textResetAt && std::abs(textPosition-textResetAt) <= STEP)
+        {
+          textPosition = 0;
+          textResetAt = 0;
+        }
 
       if (commresult<0)
         return 1;
@@ -221,7 +199,6 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
           {
             while bad(SubStrEnd-endcut)
                        endcut--;
-
             SubStrLength-=endcut;
           }
   //printf("%i;%i\n", startcut,endcut);
