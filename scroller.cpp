@@ -60,7 +60,16 @@ int main(int argc, char **argv)
 {
 
   int STEP= 1;
+  if (argc>2)
+    {
+      STEP = std::stoi(argv[2]);
+    }
+
   float SLEEPTIME = 0.5;
+  if (argc>3)
+    {
+      SLEEPTIME = std::stof(argv[3]);
+    }
 
   char *StatusBarPID = (char *)malloc(100 * sizeof(char));
 
