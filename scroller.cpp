@@ -81,24 +81,15 @@ int main(int argc, char **argv)
       exit(1);
     }
 
-  //printf("Getting PID of %s\n", outputprocname);
-
-  //if (getpid(StatusBarPID, outputprocname))
-  //  return 1;
-
-  //printf("Endpoint PID %s\n", StatusBarPID);
-  //asprintf(&outpath, "/proc/%s/fd/0", StatusBarPID);
-
-  //FILE *output = fopen( outpath, "a" );
-
   int commresult =0;
   int horizontalspan = 116;
   //printf("Writing to %s\n\n", outpath);
   int waitingData=0;
 
   int textPosition=0;
-  int textResetAt=0;
 
+  int textResetAt=0;
+  int textNextResetAt=0;
   int LEN=0;
   std::string Text;
   std::string OutputText;
@@ -127,7 +118,7 @@ int main(int argc, char **argv)
             {
               ID.wait();
               IncomingData = ID.get();
-
+              textNextResetAt = IncomingData.length();
               Text.insert(Text.length(), IncomingData);//.substr(2, Division), 0, std::string::npos);
 
               waitingData=0;
@@ -144,27 +135,24 @@ int main(int argc, char **argv)
           OutputText = utf8substr(Text, 1, std::min(horizontalspan, LEN ));
           OutputText += "\n";
 
-      //std::fprintf(output, "%s", OutputText.c_str());
-      std::cout << OutputText;
-      if (textResetAt && std::abs(textPosition-textResetAt) <= STEP)
-        {
-          textPosition = 0;
-          textResetAt = 0;
-        }
+          // SHOW TEXT TO BAR;
+          std::cout << OutputText;
+          if (!textResetAt)
+            {
+              textResetAt = textNextResetAt;
+            }
+          else if (std::abs(textPosition-textResetAt) <= STEP)
+            {
+              textPosition = 0;
+              textResetAt = 0;
+            }
 
-      if (commresult<0)
+      if (commresult < 0)
         return 1;
       fflush(stdout);
       if (textPosition)
         {
-          EnvTextPosition = "SCROLLERPOS=" + std::to_string(textPosition);
-          std::vector<char> outputPos(EnvTextPosition.c_str(), EnvTextPosition.c_str() + EnvTextPosition.size() + 1u);
-          int R =putenv(&outputPos[0]);
-          //scrollerPosition.write(&outputPos[0], outputPos.size());
           *SCP = textPosition;
-          //std::cout << outputPos << *SCP << '\n';
-          //std::cout << std::to_string(R);
-          //std::cout << getenv("SCROLLERPOS");
         }
       //printf("Success %i\n\n", commresult);
         }
@@ -174,24 +162,6 @@ int main(int argc, char **argv)
   return 0;
 }
 
-std::string getHyperlink(std::vector<std::string> hyperlinks, int index)
-{
-  std::string matchlink;
-  for (int W;W<hyperlinks.size();W++)
-    {
-      std::vector<std::string> Link = split(hyperlinks[W], ';');
-      if (std::stoi(Link[0]) > index)
-        {
-          return matchlink;
-
-        }
-      matchlink = Link[1];
-
-    }
-
-  return matchlink;
-
-}
 std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLength)
 {
   int len = 0, byteIndex = 0;
