@@ -15,9 +15,9 @@ So, create `Credentials` text file on local repo folder. It should have four lin
 
 ```
 
-Compile scroller.cpp with `-pthread` flag; 
+Compile scroller.cpp with `-pthread` and `-lrt` flag; 
 
-`$g++ scroller.cpp -o scroller -pthread`
+`$g++ scroller.cpp -o scroller -pthread -lrt -std=c++11`
 
 Scroller 
 Last step of the setup:
@@ -30,7 +30,7 @@ append to commands:
 
 -- add that  to the template:
 
-%CommandReader%
+<action=`python /path/to/scroller/enterHyperlink.py`>%CommandReader%</action>
 
 ```
 
@@ -39,14 +39,13 @@ This is how you use it on XMobar. Scroller takes the command to run `newsfilter.
 
 `NewsChannels` file contais the channel list, tweak it.
 
-If you run `openInfo.py` anytime, a browser window will pop and open last shown tweet's link, if it contained any. This is not working atm xD
+If you run `enterHyperlink.py` anytime, a browser window will pop and open last shown tweet's link, if it contained any. This is not working atm xD
+
+With that action defined at .xmobarrc you can also click on the scrolling text
+to access that hyperlink.
+
+There should be some versions of this same thing around the internets,
+but yeah... this repo was inspired by SimCity 3000.
+Good luck on enjoying this XD
 
 
-Newsfilter is a highly experimental piece of software is and I'm working on it. Ideas are appreciated.
-
-Good luck on enjoying this :x
-
-Todo:
-
-newsfilter.py gathers tweets from Twitter and proccess them into a big string, and prints it for scroller to read.
-Working on scripts that gets message from other sources.
