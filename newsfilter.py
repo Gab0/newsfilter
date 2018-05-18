@@ -90,7 +90,7 @@ if __name__ == '__main__':
     linktext=''
     for S in M:
         messagetext+=S[0] + ' ' * 7
-        linktext+='%i;%s=' % (len(messagetext), S[1])
+        linktext+='%i,%s\n' % (len(messagetext), S[1])
 
 
 
