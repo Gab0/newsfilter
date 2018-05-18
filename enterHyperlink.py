@@ -1,9 +1,10 @@
 import mmap
 import csv
 import webbrowser
-from os import path
+from os import path, chdir
 
 chdir(path.dirname(path.realpath(__file__)))
+
 
 def readScrollerPosition():
     with open('/dev/shm/scrollerPos', 'r') as f:
@@ -28,18 +29,19 @@ def getHyperlink(scrollerPosition):
     LINK_INFO = csv.reader(open("LINK_INFO"))
     LINK_INFO = list(LINK_INFO)
     for w, W in enumerate(LINK_INFO):
+        print(W)
         if scrollerPosition < int(W[0]):
             return LINK_INFO[w-1][1]
 
     return None
 
 
-
 scrollerPosition = readScrollerPosition()
 print(scrollerPosition)
 
 scrollerPosition = scrollerPosition[2] * 256 + scrollerPosition[1] + 70
-
+print(scrollerPosition)
 hyperLink = getHyperlink(scrollerPosition)
-if hyperLink != 'None':
+print(hyperLink)
+if hyperLink and hyperLink != 'None':
     webbrowser.open(hyperLink)
