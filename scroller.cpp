@@ -1,5 +1,5 @@
 #include "scroller.h"
-
+#include <boost/interprocess/managed_shared_memory.hpp>
 template<typename Out>
 void Split(const std::string &s, char delim, Out result)
 {
@@ -103,8 +103,15 @@ int main(int argc, char **argv)
   std::string Text;
   std::string OutputText;
   std::string IncomingData;
+  std::string EnvTextPosition;
   std::future<std::string> ID;
+  //std::ostream scrollerPosition("scrollerpos.bin");
 
+
+  boost::interprocess::shared_memory_object::remove("scrollerPos");
+  boost::interprocess::managed_shared_memory scrollerPosition(boost::interprocess::open_or_create, "scrollerPos", 1024);
+
+  int *SCP = scrollerPosition.construct<int>("scrollerPos")(0);
   for (;;)
     {
       //printf("text length = %i\n", Text.length());
@@ -148,7 +155,17 @@ int main(int argc, char **argv)
       if (commresult<0)
         return 1;
       fflush(stdout);
-
+      if (textPosition)
+        {
+          EnvTextPosition = "SCROLLERPOS=" + std::to_string(textPosition);
+          std::vector<char> outputPos(EnvTextPosition.c_str(), EnvTextPosition.c_str() + EnvTextPosition.size() + 1u);
+          int R =putenv(&outputPos[0]);
+          //scrollerPosition.write(&outputPos[0], outputPos.size());
+          *SCP = textPosition;
+          //std::cout << outputPos << *SCP << '\n';
+          //std::cout << std::to_string(R);
+          //std::cout << getenv("SCROLLERPOS");
+        }
       //printf("Success %i\n\n", commresult);
         }
       usleep((int)(SLEEPTIME * 1000000));
