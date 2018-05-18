@@ -85,21 +85,13 @@ if __name__ == '__main__':
     api = twitterLogin(C['Credentials'])
 
     # fetch and concatenate messages;
-    M = getMessage(C['NewsChannels'], N=70)
+    Tweets = getMessage(C['NewsChannels'], N=70)
     messagetext=''
     linktext=''
-    for S in M:
-        messagetext+=S[0] + ' ' * 7
-        linktext+='%i,%s\n' % (len(messagetext), S[1])
+    for S in Tweets:
+        messagetext += S[0] + ' ' * 7
+        linktext += '%i,%s\n' % (len(messagetext), S[1])
 
-
-
-    # append news data to scroll file;
-    #Q=open(getenv('HOME')+'/.scroll', 'w+')
-    #Q.write(M)
     print(messagetext.strip('\n'))
-    #print('###')
-    #print(linktext.strip('\n'))
     open('LINK_INFO', 'w').write(linktext)
-    #print("ààaàààààà")
 
