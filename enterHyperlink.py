@@ -3,6 +3,13 @@ import csv
 import webbrowser
 from os import path, chdir
 
+import optparse
+
+
+parser = optparse.OptionParser()
+parser.add_option('-s', dest='screenTextSpan', type='int', default=112)
+
+options,args = parser.parse_args()
 chdir(path.dirname(path.realpath(__file__)))
 
 
@@ -31,17 +38,21 @@ def getHyperlink(scrollerPosition):
     for w, W in enumerate(LINK_INFO):
         print(W)
         if scrollerPosition < int(W[0]):
-            return LINK_INFO[w-1][1]
+            deltaNext = int(W[0]) - scrollerPosition
+            deltaPrevious = scrollerPosition - int(LINK_INFO[w-1][0])
+
+            MostAlignedLinkIndex = w-1 if deltaPrevious > deltaNext else w
+            return LINK_INFO[MostAlignedLinkIndex][1]
 
     return None
 
+if __name__ == '__main__':
+    scrollerPosition = readScrollerPosition()
+    print(scrollerPosition)
 
-scrollerPosition = readScrollerPosition()
-print(scrollerPosition)
-
-scrollerPosition = scrollerPosition[2] * 256 + scrollerPosition[1] + 70
-print(scrollerPosition)
-hyperLink = getHyperlink(scrollerPosition)
-print(hyperLink)
-if hyperLink and hyperLink != 'None':
-    webbrowser.open(hyperLink)
+    scrollerPosition = scrollerPosition[2] * 256 + scrollerPosition[1]
+    print(scrollerPosition)
+    hyperLink = getHyperlink(scrollerPosition)
+    print(hyperLink)
+    if hyperLink and hyperLink != 'None':
+        webbrowser.open(hyperLink)
