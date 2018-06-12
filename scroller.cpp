@@ -1,5 +1,7 @@
 #include "scroller.h"
 #include <boost/interprocess/managed_shared_memory.hpp>
+
+
 template<typename Out>
 void Split(const std::string &s, char delim, Out result)
 {
@@ -11,50 +13,6 @@ void Split(const std::string &s, char delim, Out result)
   }
 }
 
-std::vector<std::string> split(const std::string &s, char delim)
-{
-  std::vector<std::string> elems;
-  Split(s, delim, std::back_inserter(elems));
-  return elems;
-}
-
-FILE *getStdinAddress(std::string targetname)
-{
-
-    char output[64000];
-    FILE *PS=popen("ps x", "r");
-
-    fread(output, 1, 64000, PS);
-
-    char *Read =strtok(output, "\n");
-    char *PID= NULL;
-    while (Read!=NULL)
-      {
-        if ( strstr(Read, targetname.c_str())!= NULL )
-          {
-
-            Read = strtok(Read, " ");
-            memcpy(PID, Read, strlen(Read));
-            //printf("FOUND %s\n", PID);
-
-            return 0;
-          }
-        else
-          {
-            //printf("%s\n",Read);
-            Read=strtok(NULL, "\n");
-          }
-
-      }
-    //printf("PID not found;\n");
-    std::string path("/proc/");
-    path += PID;
-    path += "/fd/0";
-
-    FILE *targetstdin = fopen(path.c_str(), "a");
-    return targetstdin;
-
-}
 
 int main(int argc, char **argv)
 {
