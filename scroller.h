@@ -25,7 +25,6 @@ std::string utf8substr(std::string originalString, int SubStrStart, int SubStrLe
 
 std::string getHyperlink(std::vector<std::string> hyperlinks, int index);
 
-FILE *getStdinAddress(std::string targetname);
 std::vector<std::string> split(const std::string &s, char delim);
 
 template<typename Out> void Split(const std::string &s, char delim, Out result);
