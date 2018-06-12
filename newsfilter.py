@@ -53,8 +53,7 @@ def parseTweet(Tweet):
     S = ' '.join([x for x in S if x])
     if S.endswith(':'):
         S=S[:-1]
-    if LINK:
-        S += "ø"
+
     DATA = (S,LINK)
 
     return DATA
@@ -89,9 +88,11 @@ if __name__ == '__main__':
     messagetext=''
     linktext=''
     for S in Tweets:
-        messagetext += S[0] + ' ' * 7
-        linktext += '%i,%s\n' % (len(messagetext), S[1])
+        tweetMessage = S[0] + ' ' * 7
+        tweetMessage = tweetMessage.replace('…', '')
+        messagetext += tweetMessage
+
+        linktext += '%i,%s,%s\n' % (len(messagetext), S[1], S[0].replace(',',';').replace('\n', ''))
 
     print(messagetext.strip('\n'))
     open('LINK_INFO', 'w').write(linktext)
-
