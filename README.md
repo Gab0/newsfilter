@@ -1,5 +1,5 @@
  Newsfilter is a tool that gather tweets from a list of twitter channels, concatenate them, and proccess them in order to
- give a sidescroll effect, like those stupid LED side-scrolling message displayers.
+ give a sidescroll effect, like those stupid LED side-scrolling message displays.
  Intended for use with the status bar XMobar, adaptable to any status bar able to show custom messages.
  
 
@@ -15,37 +15,32 @@ So, create `Credentials` text file on local repo folder. It should have four lin
 
 ```
 
-Compile scroller.cpp with `-pthread` and `-lrt` flag; 
 
-`$g++ scroller.cpp -o scroller -pthread -lrt -std=c++11`
-
-Scroller 
-Last step of the setup:
-
+Then modify `.xmobarrc` to read the newz: 
 
 ```
 append to commands:
 
-   , Run CommandReader "/full/path/to/scroller 'python /full/path/to/newsfilter.py'" 
+   , Run CommandReader "/path/to/newsfilterScroller.py" "newsfilter" 
 
 -- add that  to the template:
 
-<action=`python /path/to/scroller/enterHyperlink.py`>%CommandReader%</action>
+%newsfilter%
 
 ```
 
+The color and and action bindings to click on scrolling tweet and launch the browser on its link are specific for xmobar, structured like this:
+```
+<action=`enterHyperlink http://twitter.com/cx0v9c8x`><fc=#fff></fc></action>
+```
 
-This is how you use it on XMobar. Scroller takes the command to run `newsfilter.py` as it's unique argument, so that's it.
+To use on another status bar that shows output of commands should be a matter of modifying thix sintax, at `newsfilterScroller.py`.
 
 `NewsChannels` file contais the channel list, tweak it.
 
-If you run `enterHyperlink.py` anytime, a browser window will pop and open last shown tweet's link, if it contained any. This is not working atm xD
+If a scrolling tweet is clicked on, the browser will open the link thru `enterHyperlink.py`. 
 
-With that action defined at .xmobarrc you can also click on the scrolling text
-to access that hyperlink.
-
-There should be some versions of this same thing around the internets,
-but yeah... this repo was inspired by SimCity 3000.
+This project was inspired by SimCity 3000.
 Good luck on enjoying this XD
 
 
