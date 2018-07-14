@@ -10,7 +10,7 @@ from taskbarScroller import Scroller
 
 def parseAction(entity):
     T = "python /home/gabs/newsfilter/enterHyperlink.py -l %s"
-    return T % entity[1]i
+    return T % entity[1]
 
 
 def processData(data):
