@@ -8,7 +8,7 @@ import optparse
 
 parser = optparse.OptionParser()
 parser.add_option('-s', dest='screenTextSpan', type='int', default=112)
-
+parser.add_option('-l', dest='linkAddress')
 options,args = parser.parse_args()
 chdir(path.dirname(path.realpath(__file__)))
 
@@ -47,6 +47,8 @@ def getHyperlink(scrollerPosition):
     return None
 
 if __name__ == '__main__':
+    if options.linkAddress:
+        webbrowser.open(options.linkAddress)
     scrollerPosition = readScrollerPosition()
     print(scrollerPosition)
 
