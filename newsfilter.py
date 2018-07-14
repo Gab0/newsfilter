@@ -8,10 +8,12 @@ from time import sleep
 
 chdir(path.dirname(path.realpath(__file__)))
 
+
 def writeLink(LINK):
     W = open('LINK_INFO','w')
     W.write(str(LINK))
     W.close()
+
 
 def loadCredentials():
     Files = ['Credentials', 'NewsChannels']
@@ -26,6 +28,7 @@ def loadCredentials():
 
     return Data
 
+
 def twitterLogin(Credentials):
 
     api = twitter.Api(consumer_key=Credentials[0],
@@ -34,6 +37,7 @@ def twitterLogin(Credentials):
                       access_token_secret=Credentials[3],
                       sleep_on_rate_limit=True)
     return api
+
 
 def parseTweet(Tweet):
     S = Tweet.split(' ')
@@ -58,7 +62,8 @@ def parseTweet(Tweet):
 
     return DATA
 
-def getMessage(NewsOrigin, N=7):
+
+def getMessage(api, NewsOrigin, N=7):
 
     SelectedOrigins = [ choice(NewsOrigin) for k in range(4) ]
 
@@ -66,7 +71,7 @@ def getMessage(NewsOrigin, N=7):
     for NO in SelectedOrigins:
         statuses += api.GetUserTimeline(screen_name=NO, count=7)
 
-    statuses = [ x.text for x in statuses ]
+    statuses = [x.text for x in statuses]
 
     Status=[]
 
@@ -76,7 +81,8 @@ def getMessage(NewsOrigin, N=7):
 
     return Status
 
-if __name__ == '__main__':
+
+def gatherParseTweets(tweet_number=70):
     # read twitter login credentials and channel list file;
     C = loadCredentials()
 
@@ -84,15 +90,26 @@ if __name__ == '__main__':
     api = twitterLogin(C['Credentials'])
 
     # fetch and concatenate messages;
-    Tweets = getMessage(C['NewsChannels'], N=70)
+    Tweets = getMessage(api, C['NewsChannels'], N=tweet_number)
     messagetext=''
     linktext=''
+
+    tweetList = []
+
     for S in Tweets:
-        tweetMessage = S[0] + ' ' * 7
-        tweetMessage = tweetMessage.replace('…', '')
+        tweetMessage = S[0]
+        tweetMessage = tweetMessage.replace('…', '').replace('\n', '')
         messagetext += tweetMessage
 
         linktext += '%i,%s,%s\n' % (len(messagetext), S[1], S[0].replace(',',';').replace('\n', ''))
 
-    print(messagetext.strip('\n'))
-    open('LINK_INFO', 'w').write(linktext)
+        tweetData = [tweetMessage, S[1]]
+        tweetList.append(tweetData)
+
+    tweetList = [t for t in tweetList if t[0]]
+
+    return tweetList
+
+    #print(messagetext.strip('\n'))
+    #open('LINK_INFO', 'w').write(linktext)
+    
