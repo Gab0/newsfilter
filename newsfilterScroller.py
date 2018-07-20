@@ -1,15 +1,12 @@
 #!/bin/python
 
-import time
-import colour
-import sys
 import newsfilter
 
 from taskbarScroller import Scroller
 
 
 def parseAction(entity):
-    T = "python /home/gabs/newsfilter/enterHyperlink.py -l %s"
+    T = "enterHyperlink -l %s"
     return T % entity[1]
 
 
@@ -20,7 +17,7 @@ def processData(data):
 
 
 if __name__ == "__main__":
-    scroller = Scroller(120, 0.3, 2, 7)
+    scroller = Scroller(100, 0.2, 2, 7)
 
     scroller.gatherData = newsfilter.gatherParseTweets
     scroller.parseAction = parseAction
