@@ -12,9 +12,11 @@ class Scroller():
         self.step = step
         self.dataEntities = []
 
-    def selectColor(self, E, entity):
+    def selectColor(self, entity):
         _color = 'grey' if not entity[2] else 'white'
-        return _color
+        hexColor = colour.Color(_color).hex
+
+        return hexColor
 
     def parseWords(self, entity):
         return entity[0]
@@ -31,43 +33,45 @@ class Scroller():
 
         outputText = ""
         positionMarker = 0
-        bcutIndex = 0
 
         for E, entity in enumerate(self.dataEntities):
             totalLength = 0
             view = True
 
             words = self.parseWords(entity) + (" "*self.interspace)
+            if not E:
+                words = words[self.position:]
 
             totalLength = len(words)
             positionMarker += totalLength
-            if self.position > positionMarker:
+
+            # ELIMINATE ENTIRE ENTRY;
+            if not words:
                 view = False
                 self.dataEntities[E] = None
 
-            # CUT THE BEGGINING OF THE TEXTPIECE;
-            elif self.position + totalLength > positionMarker:
-                bcutIndex = self.position + totalLength - positionMarker
-                words = words[bcutIndex:]
-
-            # CUT THE REAR OF THE TEXTPIECE;
-            elif positionMarker - bcutIndex > self.textlength:
-                ecutIndex = self.textlength - (positionMarker - bcutIndex)
-                if len(words) + ecutIndex < 1:
+            # CUT THE REAR END OF THE TEXTPIECE;
+            elif positionMarker >= self.textlength:
+                words = words[:self.textlength-positionMarker]
+                if not words:
                     view = False
-                words = words[:ecutIndex]
+                    break
+
+            # IF IT WILL SHOW GIVEN BLOCK;
             if view:
-                _color = self.selectColor(E, entity)
-                hexColor = colour.Color(_color).hex
+                hexColor = self.selectColor(entity)
 
-                segmentOutput = xmobarBase % (hexColor, words)
-                if entity[1]:
-                    segmentOutput = actionWrapper % (
-                        self.parseAction(entity), segmentOutput)
+                W = len(list(set(words)))
+                if W > 1 or " " not in words:
+                    segmentOutput = xmobarBase % (hexColor, words)
+                    Action = self.parseAction(entity)
+                    if Action:
+                        segmentOutput = actionWrapper % (
+                            Action, segmentOutput)
+                else:
+                    segmentOutput = words
+
                 outputText += segmentOutput
-
-            if positionMarker - bcutIndex > self.textlength:
-                break
 
         print(outputText)
         sys.stdout.flush()
