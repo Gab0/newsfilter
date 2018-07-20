@@ -1,3 +1,4 @@
+#!/bin/python
 import mmap
 import csv
 import webbrowser
