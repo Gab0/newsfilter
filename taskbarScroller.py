@@ -27,6 +27,15 @@ class Scroller():
     def processData(self, data):
         return data
 
+    def validateOutput(self, output):
+        A = [x for x in output if x == '<']
+        B = [x for x in output if x == '>']
+        if len(A) != len(B):
+            return False
+        if '\n' in output:
+            return False
+        return True
+
     def renderScroller(self):
         xmobarBase = "<fc=%s>%s</fc>"
         actionWrapper = "<action=`%s`>%s</action>"
@@ -73,7 +82,12 @@ class Scroller():
 
                 outputText += segmentOutput
 
-        print(outputText)
+        if not self.validateOutput(outputText):
+            print("INVALID TEXT!")
+            open('scrollerError.txt', 'a+').write(outputText+'\n')
+
+        else:
+            print(outputText)
         sys.stdout.flush()
 
     def scrollerLoop(self):
