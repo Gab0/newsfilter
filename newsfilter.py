@@ -101,15 +101,14 @@ def gatherParseTweets(tweet_number=70):
         tweetMessage = tweetMessage.replace('…', '').replace('\n', '')
         messagetext += tweetMessage
 
-        linktext += '%i,%s,%s\n' % (len(messagetext), S[1], S[0].replace(',',';').replace('\n', ''))
+        tweetLink = S[1].replace('\n', '') if S[1] else None
+        linktext += '%i,%s,%s\n' % (len(messagetext), tweetLink, S[0].replace(',',';').replace('\n', ''))
 
-        tweetData = [tweetMessage, S[1]]
+        tweetData = [tweetMessage, tweetLink]
         tweetList.append(tweetData)
 
     tweetList = [t for t in tweetList if t[0]]
 
     return tweetList
 
-    #print(messagetext.strip('\n'))
-    #open('LINK_INFO', 'w').write(linktext)
-    
+
